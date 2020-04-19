@@ -1,6 +1,7 @@
 import sys,os
 import hashlib
-import time 
+import time
+
 
 def getFileMd5(file_path):
 	
@@ -18,7 +19,7 @@ def getFileMd5(file_path):
 
 			percent = int((i+1)/loop_count*100/2)
 			if percent != count:
-				sys.stdout.write('\r'+'Process: ['+'#'*percent+ ' '*(50-percent)+']  '+str(int((i+1)/loop_count*100))+' %')
+				sys.stdout.write('\r'+'    Process: ['+'#'*percent+ ' '*(50-percent)+']  '+str(int((i+1)/loop_count*100))+' %')
 				sys.stdout.flush()
 				count += 1
 
@@ -32,23 +33,37 @@ def getFileMd5(file_path):
 	return m.hexdigest()    
 
 
+def getAndSave_single(file_path):
+
+	if file_path.split('.')[-1] != 'md5':
+
+		sys.stdout.write(file_path+'\n')
+		sys.stdout.flush()
+
+		md5 = getFileMd5(file_path)
+		
+		with open(file_path+'.md5','w') as f: 
+			f.write(md5)
+
+		sys.stdout.write('\n\n')
+		sys.stdout.flush()
+
 if __name__ == '__main__':
 
-	file_path = sys.argv[1]
-	
-	file_name = file_path.split(os.sep)[-1]
-	
-	md5 = getFileMd5(file_path)
-	
-	with open(file_name+'.md5','w') as f: 
-		f.write(md5)
+	input_package = sys.argv[1:]
 
-	sys.stdout.write("\n\n")
-	sys.stdout.flush()
+	for each in input_package:
+		if os.path.isdir(each):
+			#fileInside_list = []
+			for root, dirs, files in os.walk(each):
+				for name in files:
+					#fileInside_list.append()
+					getAndSave_single(os.path.join(root, name))
+		else:
+			getAndSave_single(each)
 
-	for i in range(5):
-		sys.stdout.write("\rClose in %d seconds" %(5-i))
+	for i in range(10):
+		sys.stdout.write("\rClose in %d seconds" %(10-i))
 		sys.stdout.flush()
 		time.sleep(1)
-
 
